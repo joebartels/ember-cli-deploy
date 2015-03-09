@@ -11,19 +11,15 @@ var GIT_SHA_SHORTENED = getShortShaVersion(GIT_SHA);
 
 describe('ShaTaggingAdapter', function() {
   var sandbox;
+  var syncExec = {
+    exec: require('sync-exec')
+  };
 
   beforeEach(function() {
     sandbox = sinon.sandbox.create();
-    if (require('child_process').execSync) {
-      sandbox
-        .stub(require('child_process'), 'execSync')
-        .returns(GIT_SHA);
-    } else {
-      // Node 0.10
-      sandbox
-        .stub(require('execSync'), 'exec')
-        .returns({stdout: GIT_SHA});
-    }
+    sandbox
+      .stub(syncExec, 'exec')
+      .returns({stdout: GIT_SHA});
   });
 
   afterEach(function() {
@@ -38,7 +34,7 @@ describe('ShaTaggingAdapter', function() {
         manifest: manifestName
       });
 
-      expect(revisionTagger.createTag()).to.eq(expectedTag);
+      expect(revisionTagger.createTag(syncExec.exec)).to.eq(expectedTag);
     });
   });
 });
